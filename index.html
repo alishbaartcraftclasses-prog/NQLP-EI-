@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NQLP — Quranic App | Emotional Intelligence</title>
+<style>
+:root{
+  --bg:#0b0f0e;--sidebar:#111715;--panel:#171f1c;--panel2:#202a26;
+  --line:#2c3933;--text:#edf2ee;--muted:#9aa9a0;--gold:#d9b65a;
+  --gold2:#f1d47b;--green:#174b3b;--green2:#23634c;--user:#20392f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Inter,Segoe UI,Arial,sans-serif}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{width:270px;background:var(--sidebar);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:16px;flex-shrink:0}
+.brand{padding:8px 10px 18px;border-bottom:1px solid var(--line)}
+.brand h1{font-size:27px;letter-spacing:2px;color:var(--gold2);margin:0;font-weight:700}
+.brand p{margin:0;color:var(--muted);font-size:12px;letter-spacing:1.5px}
+.newchat,.sidebtn{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:12px;padding:11px 12px;text-align:left}
+.newchat:hover,.sidebtn:hover{background:var(--panel2);border-color:#64786c}
+.side-label{font-size:11px;color:#84958b;text-transform:uppercase;letter-spacing:1.4px;margin:4px 9px}
+.sidebtn.active{background:var(--panel2);border-color:var(--gold)}
+.sidefoot{margin-top:auto;color:var(--muted);font-size:11px;padding:10px}
+.main{min-width:0;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:60px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(11,15,14,.92)}
+.topbar-title{font-weight:600}.topbar small{color:var(--muted);margin-left:8px}
+.status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%;background:#b48e38;display:inline-block}
+.chat-area{width:min(900px,100%);margin:0 auto;padding:28px 22px 170px;flex:1}
+.welcome{min-height:55vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.welcome-mark{width:58px;height:58px;border:1px solid #806b34;border-radius:18px;display:grid;place-items:center;color:var(--gold2);font-size:26px;margin-bottom:18px;background:linear-gradient(145deg,#18392d,#101b17)}
+.welcome h2{font-size:clamp(25px,4vw,36px);margin:0 0 7px;font-weight:600}
+.welcome p{color:var(--muted);max-width:570px;margin:0 0 25px}
+.suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:min(620px,100%)}
+.suggestion{border:1px solid var(--line);background:#121a16;color:#dce5de;text-align:left;padding:13px;border-radius:13px}
+.suggestion:hover{border-color:#8c753b;background:#1a241f}
+.messages{display:flex;flex-direction:column;gap:22px}
+.message{display:flex;gap:12px;align-items:flex-start}
+.avatar{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;font-size:12px;font-weight:700}
+.message.user .avatar{background:#294b3b;color:#e5f2e8}
+.message.assistant .avatar{background:#3b3420;color:var(--gold2)}
+.bubble{max-width:100%;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.message.user .bubble{background:var(--user);padding:12px 15px;border-radius:16px}
+.message.assistant .bubble{padding:4px 0 8px}
+.sources{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:7px}
+.source{font-size:11px;color:#d8c17c;border:1px solid #66572e;padding:4px 8px;border-radius:20px;text-decoration:none}
+.composer-wrap{position:fixed;bottom:0;left:270px;right:0;background:linear-gradient(transparent,var(--bg) 20%);padding:22px}
+.composer{width:min(850px,100%);margin:0 auto;background:#171f1c;border:1px solid #3a4940;border-radius:19px;padding:12px 13px 9px;box-shadow:0 12px 40px #0008}
+.composer textarea{width:100%;resize:none;min-height:50px;max-height:180px;background:transparent;border:0;outline:0;color:var(--text);padding:7px 6px}
+.composer-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hint{font-size:11px;color:var(--muted)}
+.send{background:var(--gold);color:#17170f;border:0;border-radius:11px;width:38px;height:36px;font-weight:800;font-size:18px}
+.send:disabled{opacity:.4;cursor:not-allowed}
+.composer-note{text-align:center;color:#7f8e85;font-size:10px;margin-top:8px}
+.mobile-menu{display:none}
+.panel{width:min(850px,calc(100% - 40px));margin:28px auto;padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+.panel h2{margin:0 0 6px;color:var(--gold2)}
+.panel p{color:var(--muted);margin-top:0}
+.field{display:flex;flex-direction:column;gap:6px;margin:13px 0}
+.field label{font-size:12px;color:#bdc9c0}
+.field input,.field textarea,.field select{background:#0d1411;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px;outline:none}
+.field textarea{min-height:90px;resize:vertical}
+.primary{background:var(--gold);color:#17170f;border:0;border-radius:10px;padding:10px 15px;font-weight:700}
+.secondary{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 15px}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.notice{font-size:12px;color:var(--muted);padding:10px;border:1px dashed var(--line);border-radius:10px;margin:12px 0}
+.hidden{display:none!important}
+@media(max-width:760px){
+ .sidebar{position:fixed;z-index:5;left:-285px;top:0;bottom:0;transition:left .2s}
+ .sidebar.open{left:0}
+ .composer-wrap{left:0;padding:12px}
+ .topbar{padding:0 14px}
+ .mobile-menu{display:inline-block;background:transparent;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 9px;margin-right:9px}
+ .suggestions{grid-template-columns:1fr}
+ .chat-area{padding:18px 15px 150px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><h1>NQLP</h1><p>NQLP EMOTIONAL INTELLIGENCE</p></div>
+  <button class="newchat" onclick="newChat()">＋ &nbsp; New chat</button>
+  <div>
+    <div class="side-label">Knowledge & training</div>
+    <button class="sidebtn active" id="chatNav" onclick="showView('chat',this)">◉ &nbsp; Ask NQLP EI</button>
+    <button class="sidebtn" onclick="showView('training',this)">✧ &nbsp; Training studio</button>
+    <button class="sidebtn" onclick="showView('sources',this)">▤ &nbsp; Knowledge sources</button>
+  </div>
+  <div>
+    <div class="side-label">Project</div>
+    <button class="sidebtn" onclick="syncMind369()">↻ &nbsp; Sync MIND369</button>
+    <button class="sidebtn" onclick="checkStatus()">◌ &nbsp; Connection status</button>
+  </div>
+  <div class="sidefoot">NQLP EI · Your framework, your approved knowledge.</div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div><button class="mobile-menu" onclick="toggleSidebar()">☰</button><span class="topbar-title" id="viewTitle">NQLP EI</span><small id="viewSub">Research and conversation</small></div>
+    <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Checking connection…</span></div>
+  </header>
+
+  <section id="chatView">
+    <div class="chat-area">
+      <div class="welcome" id="welcome">
+        <div class="welcome-mark">ن</div>
+        <h2>What would you like to understand?</h2>
+        <p>Ask about an Arabic term, Quranic usage, NQLP concepts, number relationships, or MIND369 research.</p>
+        <div class="suggestions">
+          <button class="suggestion" onclick="usePrompt('Analyse the Arabic term حمد using Quranic occurrences, root and NQLP letter-number framework.')">Analyse an Arabic Quranic term</button>
+          <button class="suggestion" onclick="usePrompt('Explain number 3 according to my NQLP framework.')">Explore an NQLP number</button>
+          <button class="suggestion" onclick="usePrompt('Find MIND369 articles related to mind and psychology.')">Search MIND369 knowledge</button>
+          <button class="suggestion" onclick="usePrompt('Explain the relationship between Quranic context and NQLP interpretation.')">Connect Quran and NQLP</button>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+    </div>
+    <div class="composer-wrap">
+      <div class="composer">
+        <textarea id="question" placeholder="Message NQLP EI…" rows="1" onkeydown="handleKey(event)" oninput="resizeInput(this)"></textarea>
+        <div class="composer-bottom"><span class="hint">Enter to send · Shift + Enter for a new line</span><button class="send" id="sendBtn" onclick="sendMessage()">↑</button></div>
+      </div>
+      <div class="composer-note">AI responses can be incorrect. Check Quranic quotations and references against verified sources.</div>
+    </div>
+  </section>
+
+  <section id="trainingView" class="hidden">
+    <div class="panel">
+      <h2>Training studio</h2>
+      <p>Add and approve the NQLP knowledge that should guide the EI. Your entries are stored in the connected Google Sheet.</p>
+      <div class="field"><label>Knowledge category</label><select id="trainCategory"><option>NQLP Concept</option><option>Number Meaning</option><option>Arabic Letter Number</option><option>Quranic Term</option><option>Response Rule</option><option>MIND369 Concept</option></select></div>
+      <div class="field"><label>Term / question / letter</label><input id="trainQuestion" placeholder="e.g. 3 — Mind, or ح — Haa"></div>
+      <div class="field"><label>Approved explanation / mapping</label><textarea id="trainAnswer" placeholder="Enter your exact NQLP definition or training instruction…"></textarea></div>
+      <div class="row"><button class="primary" onclick="saveTraining()">Save approved knowledge</button><button class="secondary" onclick="loadTraining()">Refresh entries</button></div>
+      <div class="notice">Quranic evidence, linguistic facts and your NQLP interpretation should remain separately labelled. This prevents an NQLP interpretation from being presented as a direct Quranic quotation.</div>
+      <div id="trainingList"></div>
+    </div>
+  </section>
+
+  <section id="sourcesView" class="hidden">
+    <div class="panel">
+      <h2>Knowledge sources</h2>
+      <p>Manage the sources connected to NQLP EI.</p>
+      <div class="notice"><b>MIND369:</b> Blogger posts and pages can be imported into the knowledge index. New content can be synced again later.</div>
+      <div class="notice"><b>Quranic research:</b> The system should retrieve verified Arabic text, verse references, root and derived-form data. A complete morphological root index must be connected before claiming exhaustive root coverage.</div>
+      <div class="notice"><b>NQLP framework:</b> Your number meanings, Arabic letter-number mapping and approved interpretations are saved in Training Studio.</div>
+      <div class="row"><button class="primary" onclick="syncMind369()">Sync MIND369 now</button><button class="secondary" onclick="checkStatus()">Check database</button></div>
+      <pre id="sourceStatus" style="white-space:pre-wrap;color:#c3d0c7"></pre>
+    </div>
+  </section>
+</main>
+</div>
+
+<script>
+let history = [];
+let busy = false;
+const $ = id => document.getElementById(id);
+
+function toggleSidebar(){ $('sidebar').classList.toggle('open'); }
+function showView(name,btn){
+  ['chat','training','sources'].forEach(v => $(v+'View').classList.toggle('hidden',v!==name));
+  document.querySelectorAll('.sidebtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  $('viewTitle').textContent = name==='chat'?'NQLP EI':name==='training'?'Training studio':'Knowledge sources';
+  $('viewSub').textContent = name==='chat'?'Research and conversation':name==='training'?'Your approved knowledge':'Connected databases';
+  $('sidebar').classList.remove('open');
+  if(name==='training') loadTraining();
+}
+function newChat(){history=[];$('messages').innerHTML='';$('welcome').classList.remove('hidden');$('question').value='';$('question').focus();showView('chat',$('chatNav'));}
+function usePrompt(t){$('question').value=t;sendMessage();}
+function resizeInput(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,180)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+function addMessage(role,text,sources=[]){
+  $('welcome').classList.add('hidden');
+  const wrap=document.createElement('div');wrap.className='message '+role;
+  const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=role==='user'?'YOU':'EI';
+  const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=text;
+  wrap.append(avatar,bubble);
+  if(sources.length){const box=document.createElement('div');box.className='sources';sources.forEach(s=>{const a=document.createElement('a');a.className='source';a.textContent=s.title||'Source';if(s.url){a.href=s.url;a.target='_blank';a.rel='noopener';}else a.href='#';box.appendChild(a);});bubble.appendChild(box);}
+  $('messages').appendChild(wrap);window.scrollTo(0,document.body.scrollHeight);return bubble;
+}
+async function callServer(method,...args){
+  return new Promise((resolve,reject)=>{
+    if(!window.google||!google.script||!google.script.run){reject(new Error('Open this app through its Google Apps Script web-app URL.'));return;}
+    const runner=google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(new Error(e.message||String(e))));
+    runner[method](...args);
+  });
+}
+async function sendMessage(){
+  if(busy)return;
+  const q=$('question').value.trim();if(!q)return;
+  $('question').value='';$('question').style.height='auto';
+  addMessage('user',q);history.push({role:'user',text:q});
+  busy=true;$('sendBtn').disabled=true;$('sendBtn').textContent='…';
+  const pending=addMessage('assistant','Searching connected knowledge and preparing an answer…');
+  try{
+    const result=await callServer('chatNqlp',q,history.slice(-10));
+    pending.textContent=result.answer||'No answer was returned.';
+    if(result.sources&&result.sources.length){const box=document.createElement('div');box.className='sources';result.sources.forEach(s=>{const a=document.createElement('a');a.className='source';a.textContent=s.title||'Source';a.href=s.url||'#';a.target='_blank';a.rel='noopener';box.appendChild(a);});pending.appendChild(box);}
+    history.push({role:'assistant',text:result.answer||''});
+  }catch(err){pending.textContent='Connection issue: '+err.message+'\n\nPlease open the deployed Apps Script web-app URL and confirm the Gemini API key has been added in Script Properties.';}
+  finally{busy=false;$('sendBtn').disabled=false;$('sendBtn').textContent='↑';$('question').focus();}
+}
+async function saveTraining(){
+  const item={category:$('trainCategory').value,question:$('trainQuestion').value.trim(),answer:$('trainAnswer').value.trim()};
+  if(!item.question||!item.answer){alert('Please enter both a term/question and its approved explanation.');return;}
+  try{const r=await callServer('saveNqlpTraining',item);alert(r.message||'Saved.');$('trainQuestion').value='';$('trainAnswer').value='';loadTraining();}
+  catch(e){alert('Could not save: '+e.message);}
+}
+async function loadTraining(){
+  try{const r=await callServer('getNqlpTraining');const box=$('trainingList');box.innerHTML='';
+    (r.items||[]).slice(-30).reverse().forEach(it=>{const d=document.createElement('div');d.className='notice';const b=document.createElement('b');b.textContent=it.category+' · '+it.question;const p=document.createElement('div');p.textContent=it.answer;d.append(b,p);box.appendChild(d);});
+  }catch(e){$('trainingList').textContent='Open the deployed Apps Script web app to view training records.';}
+}
+async function syncMind369(){
+  $('statusText').textContent='Syncing MIND369…';
+  try{const r=await callServer('syncMind369');$('statusText').textContent='MIND369 synced';$('sourceStatus').textContent=JSON.stringify(r,null,2);alert(r.message||'MIND369 sync completed.');}
+  catch(e){$('statusText').textContent='Not connected';alert('Sync failed: '+e.message);}
+}
+async function checkStatus(){
+  try{const r=await callServer('getNqlpStatus');$('statusDot').style.background='#59b77c';$('statusText').textContent='Backend connected';$('sourceStatus').textContent=JSON.stringify(r,null,2);}
+  catch(e){$('statusDot').style.background='#b48e38';$('statusText').textContent='Backend not connected';$('sourceStatus').textContent=e.message;}
+}
+checkStatus();
+</script>
+</body>
+</html>
